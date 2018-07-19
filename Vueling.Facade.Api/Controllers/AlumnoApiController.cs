@@ -13,7 +13,7 @@ namespace Vueling.Facade.Api.Controllers
 {
     public class AlumnoApiController : ApiController
     {
-		AlumnoService alumnoService = new AlumnoService();
+		//AlumnoService alumnoService = new AlumnoService();
 		public readonly IService<AlumnoDto> iService = new AlumnoService();
 		public AlumnoApiController() : this(new AlumnoService())
 		{
@@ -42,10 +42,22 @@ namespace Vueling.Facade.Api.Controllers
 		[ResponseType(typeof(AlumnoDto))]
 		public IHttpActionResult Post(AlumnoDto alumno)
         {
-			AlumnoDto alumnoDtoInserted = 
-				alumnoService.Add(alumno);
-			throw new NotImplementedException();
-			//alumnoService.Add(alumno);
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(ModelState);
+			}
+			try
+			{
+				AlumnoDto alumnoDtoInserted =
+						iService.Add(alumno);
+			}
+			catch (Exception)
+			{
+				throw;
+			}
+
+			return CreatedAtRoute("DefaultApi", 
+				new { id = alumno.Id }, alumno);
 		}
 
         // PUT: api/AlumnoApi/5

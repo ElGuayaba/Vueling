@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,18 +14,36 @@ namespace Vueling.Application.Services.Service
 {
 	public class AlumnoService : IService<AlumnoDto>
 	{
-		private readonly IRepository<AlumnoEntity> irepository;
+		private readonly IRepository<AlumnoEntity> iRepository;
 		public AlumnoService():this(new AlumnoRepository())
 		{
 
 		}
 		public AlumnoService(AlumnoRepository alumnoRepository)
 		{
-			this.irepository = alumnoRepository;
+			this.iRepository = alumnoRepository;
 		}
-		public AlumnoDto Add(AlumnoDto model)
+		public AlumnoDto Add(AlumnoDto alumno)
 		{
-			throw new NotImplementedException();
+			AlumnoEntity alumnoEntity = new AlumnoEntity();
+
+			var config = new MapperConfiguration(cfg => cfg.CreateMap<AlumnoDto, AlumnoEntity>()
+			.ForMember(dest => dest.Edad, sou => sou.ResolveUsing(entity => DateTime.Today.AddTicks(-entity.FechaNacimiento.Ticks).Year - 1)));
+
+			IMapper iMapper = config.CreateMapper();
+
+			alumnoEntity = iMapper.Map<AlumnoDto, AlumnoEntity>(alumno);
+			try
+			{
+				iRepository.Add(alumnoEntity);
+			}
+			catch (Exception ex)
+			{
+				//log
+				throw;
+			}
+
+			return alumno;
 		}
 
 		public List<AlumnoDto> GetAll()
